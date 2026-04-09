@@ -315,5 +315,5 @@ Este projeto está sob a licença **MIT**.
 
 Desenvolvido por **Seu Nome**
 
-- 🔗 LinkedIn: [seu-linkedin](www.linkedin.com/in/guilherme-garcia-pinto-bb63613b7)
-- 💻 GitHub: [seu-github]((https://github.com/GUILHERME-GARCIATECH))
+- 🔗 LinkedIn: www.linkedin.com/in/guilherme-garcia-pinto-bb63613b7
+- 💻 GitHub: https://github.com/GUILHERME-GARCIATECH
