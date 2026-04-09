@@ -1,7 +1,32 @@
 # 📦 SFTP Backup Pipeline (PowerShell)
 
+![PowerShell](https://img.shields.io/badge/PowerShell-5.1-blue)
+![Windows](https://img.shields.io/badge/Windows-Supported-blue)
+![Status](https://img.shields.io/badge/status-active-success)
+![Security](https://img.shields.io/badge/security-antivirus-critical)
+
 > 🚀 Automação em **PowerShell** para envio de backups compactados via **SFTP**, com triagem antivírus, quarentena e promoção segura para destino final.  
 > 🔐 Provisionamento automatizado de usuários via **OpenSSH**.
+
+---
+
+## 📑 Índice
+
+- [🧭 Visão geral](#-visão-geral)
+- [🔄 Fluxo do pipeline](#-fluxo-do-pipeline)
+- [📂 Estrutura dos scripts](#-estrutura-dos-scripts)
+- [🔐 Modelo de acesso](#-modelo-de-acesso)
+- [🗂️ Estrutura de diretórios](#️-estrutura-de-diretórios)
+- [⚙️ Requisitos](#️-requisitos)
+- [🔑 OpenSSH e chaves](#-openssh-e-chaves)
+- [🚀 Como usar](#-como-usar)
+- [🌟 Destaques](#-destaques)
+- [✅ Boas práticas](#-boas-práticas)
+- [🔮 Sugestões de evolução](#-sugestões-de-evolução)
+- [📁 Estrutura do repositório](#-estrutura-do-repositório)
+- [🤝 Contribuição](#-contribuição)
+- [📄 Licença](#-licença)
+- [👨‍💻 Autor](#-autor)
 
 ---
 
@@ -9,9 +34,9 @@
 
 O projeto foi dividido em três partes:
 
-- **`backup_sftp.ps1`** → roda no cliente, coleta os arquivos alterados, compacta em `.zip` e envia via SFTP para `_incoming`
-- **`scan+promote.ps1`** → roda no servidor, escaneia os arquivos e decide destino
-- **`gen-users.ps1`** → provisiona usuários, estrutura pastas, ACLs e OpenSSH
+- **`backup_sftp.ps1`** → coleta, compacta e envia backups
+- **`scan+promote.ps1`** → escaneia, valida e promove arquivos
+- **`gen-users.ps1`** → provisiona usuários e estrutura SFTP
 
 ---
 
@@ -25,7 +50,7 @@ Separação clara:
 - 🚀 promoção  
 - 🛑 isolamento  
 
-### 🏗️ Arquitetura do fluxo
+### 🏗️ Arquitetura
 
 ```text
 Cliente
@@ -53,82 +78,37 @@ scan com Microsoft Defender
 
 ### 🔹 `backup_sftp.ps1`
 
-📤 Script cliente responsável pelo envio
-
-#### ⚙️ O que faz
+📤 Responsável pelo envio
 
 - valida chave SSH e `sftp.exe`
-- usa `C:\TI\backup-sftp`
-- identifica alterações pela última execução
-- backup full inicial
-- backup incremental nas próximas execuções
-- staging de arquivos
-- compactação `.zip`
+- identifica alterações
+- backup full + incremental
+- staging + compactação `.zip`
 - envio para `_incoming`
 - envio de logs
-
-#### ⚠️ Importante
-
-- ❌ não envia arquivos soltos  
-- 📦 sempre compacta  
-- 🧠 mantém estado incremental  
 
 ---
 
 ### 🔹 `scan+promote.ps1`
 
-🔍 Script servidor de triagem
+🔍 Responsável pela triagem
 
-#### ⚙️ O que faz
-
-- monitora `E:\SFTP-IN\Clientes`
-- busca `.zip` em `_incoming`
-- ignora arquivos recentes
+- monitora `_incoming`
 - move para `_processing`
-- scan com `MpCmdRun.exe`
-- valida com `Get-MpThreatDetection`
-
-#### 🔀 Decisão
-
-**Se limpo:**
-
-- move para `FINAL`
-- copia para SharePoint
-
-**Se infectado:**
-
-- move para `_quarantine`
-
----
-
-### 🛑 Modelo de quarentena
-
-- `_incoming` → entrada  
-- `_processing` → análise  
-- `_quarantine` → isolamento  
-- `FINAL` → aprovado  
-
-✔ Segurança garantida  
-✔ Nada vai direto pra produção  
+- executa scan antivírus
+- promove ou envia para quarentena
 
 ---
 
 ### 🔹 `gen-users.ps1`
 
-🔐 Provisionamento de usuários
+🔐 Provisionamento
 
-#### ⚙️ O que faz
-
-- cria usuário Windows  
-- adiciona ao OpenSSH Users  
-- cria diretórios  
-- configura chroot  
-- cria junction  
-- grava chave pública  
-- aplica ACLs  
-- atualiza `sshd_config`  
-- cria `Match User`  
-- reinicia serviço  
+- cria usuário Windows
+- configura OpenSSH
+- cria diretórios
+- aplica ACLs
+- configura chroot
 
 ---
 
@@ -136,7 +116,7 @@ scan com Microsoft Defender
 
 - 🔒 chroot por cliente  
 - 📥 `_incoming` acessível  
-- 🚫 FINAL e quarentena restritos  
+- 🚫 FINAL restrito  
 - 🔑 autenticação por chave  
 - ❌ senha desabilitada  
 
@@ -144,75 +124,39 @@ scan com Microsoft Defender
 
 ## 🗂️ Estrutura de diretórios
 
-### 🖥️ Cliente
-
 ```text
+Cliente:
 C:\TI\backup-sftp
-├── Logs
-├── Stage\<Cliente>
-├── State
-└── Temp
-```
 
-### 🗄️ Servidor
-
-```text
+Servidor:
 C:\SRV-BACKUP\<Cliente>
-├── _incoming → junction
-└── FINAL
-```
-
-### 📥 Entrada física
-
-```text
 E:\SFTP-IN\Clientes\<Cliente>
-├── _incoming
-│   ├── logs
-│   └── _processing
-└── _quarantine
 ```
 
 ---
 
 ## ⚙️ Requisitos
 
-### 🖥️ Cliente
+### Cliente
 
 - PowerShell 5.1  
 - OpenSSH Client  
 - chave SSH  
-- acesso SFTP  
-- permissões de leitura  
 
-### 🗄️ Servidor
+### Servidor
 
 - PowerShell 5.1  
 - OpenSSH Server  
 - Microsoft Defender  
-- permissões administrativas  
 
 ---
 
 ## 🔑 OpenSSH e chaves
 
-### Cliente
-
 ```powershell
 %USERPROFILE%\.ssh\id_ed25519
-```
-
-### Servidor
-
-```powershell
 C:\ProgramData\ssh\keys\<usuario>_authorized_keys
 ```
-
-### Configuração
-
-- `AuthorizedKeysFile`
-- `ChrootDirectory`
-- `ForceCommand internal-sftp -d /_incoming`
-- `PasswordAuthentication no`
 
 ---
 
@@ -220,34 +164,15 @@ C:\ProgramData\ssh\keys\<usuario>_authorized_keys
 
 ### 1️⃣ Criar usuário
 
-Editar no `gen-users.ps1`:
-
-- `$ClientUser`
-- `$ClientFullName`
-- `$BackupHost`
-- `$ClientPublicKey`
-
 ```powershell
 .\gen-users.ps1
 ```
 
----
-
-### 2️⃣ Configurar cliente
-
-Editar no `backup_sftp.ps1`:
-
-- `$BackupHost`
-- `$BackupUser`
-- `$Client`
-- `$Key`
-- `$Pastas`
+### 2️⃣ Rodar backup
 
 ```powershell
 .\backup_sftp.ps1
 ```
-
----
 
 ### 3️⃣ Processar arquivos
 
@@ -272,18 +197,15 @@ Editar no `backup_sftp.ps1`:
 - ❌ não versionar chave privada  
 - 🔒 mascarar dados sensíveis  
 - 🧹 revisar hardcoded  
-- ⚙️ usar config externa  
-- ⏰ agendar tarefas  
+- ⏰ agendar execução  
 
 ---
 
-## 🔮 Melhorias futuras
+## 🔮 Sugestões de evolução
 
 - inspeção interna do ZIP  
 - notificações  
-- checksum  
 - dashboard  
-- multi-origem  
 - centralização de logs  
 
 ---
@@ -297,6 +219,7 @@ Editar no `backup_sftp.ps1`:
 ├── scan+promote.ps1
 └── README.md
 ```
+
 ---
 
 ## 🤝 Contribuição
@@ -313,7 +236,7 @@ Este projeto está sob a licença **MIT**.
 
 ## 👨‍💻 Autor
 
-Desenvolvido por **Seu Nome**
+Desenvolvido por **Guilherme Garcia**
 
-- 🔗 LinkedIn: www.linkedin.com/in/guilherme-garcia-pinto-bb63613b7
+- 🔗 LinkedIn: https://www.linkedin.com/in/guilherme-garcia-pinto-bb63613b7
 - 💻 GitHub: https://github.com/GUILHERME-GARCIATECH
