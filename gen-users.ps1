@@ -5,14 +5,14 @@ $ErrorActionPreference = "Stop"
 # =========================
 # VARIÁVEIS FÁCEIS (EDITE AQUI)
 # =========================
-$ClientUser       = "Guilherme.ASS"
-$ClientFullName   = "Guilherme.Garcia - ASSESSORIA"
+$ClientUser       = "Client_Name"
+$ClientFullName   = "Client_Name_completo"
 $CreateLocalUser  = $true
 
 $BackupHost       = "SEU_IP_OU_DNS_DO_SERVIDOR"
 
 # Cole aqui a CHAVE PÚBLICA (uma linha):
-$ClientPublicKey  = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBjirPdIz3eFWtHNEnAuzFJGewuyN+gZJiqYfPxdPKt9 guilherme.garcia@assessoriatech.com"
+$ClientPublicKey  = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqq2543e5453gfdgfdgfdgFDGDFGfdgFDGfdgfdseuemail@exemplo.com"
 
 # =========================
 # ESTRUTURA - ARQUITETURA SEGURA (CHROOT + INCOMING EM E:)
