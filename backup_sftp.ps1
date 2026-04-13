@@ -7,9 +7,9 @@ $ErrorActionPreference = "Stop"
 # =========================
 $ScriptVersion = "1.9.1"
 
-$BackupHost = "192.168.10.161"
-$BackupUser = "Guilherme.ASS"          # usuário SFTP
-$Client     = "Guilherme.ASS"          # deve ser IGUAL ao usuário (pasta no servidor)
+$BackupHost = "IP_HOST"
+$BackupUser = "NAME_USER"          # usuário SFTP
+$Client     = "NAME_USER"          # deve ser IGUAL ao usuário (pasta no servidor)
 $Key        = "$env:USERPROFILE\.ssh\id_ed25519"
 
 # Use caminho absoluto do OpenSSH pra não depender do PATH (ISE/Task Scheduler)
@@ -29,7 +29,7 @@ $RemoteIncomingLogsDir = "$RemoteIncomingDir/logs"
 # ORIGENS
 # =========================
 $Pastas = @(
-  "C:\Users\Guilherme.Garcia\Downloads"
+  "C:\local\da\sua-pasta"
 )
 
 # =========================
