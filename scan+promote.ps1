@@ -16,7 +16,7 @@ SCAN + PROMOTE (Servidor)
 # =========================
 $IncomingRoot      = "E:\SFTP-IN\Clientes"
 $LocalFinalRoot    = "C:\SRV-BACKUP"  # cada cliente: C:\SRV-BACKUP\<Cliente>\FINAL
-$SharePointRoot    = "C:\Users\Administrador\ASSESSORIA\Clientes - BACKUP FTP" # sync (limpo)
+$SharePointRoot    = "C:\pasta\na\nuvem" # sync (limpo)
 
 $ScanMinAgeMinutes = 3      # não pega arquivo com menos de X minutos
 $OnlyExtensions    = @(".zip")
